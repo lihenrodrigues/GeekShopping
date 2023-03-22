@@ -9,7 +9,7 @@ using GeekShopping.ProductAPI.Repository;
 using GeekShopping.ProductAPI.Data.ValueObjects;
 
 namespace GeekShopping.ProductAPI.Controllers;
-[Route("api/v1[controller]")]
+[Route("api/v1/[controller]")]
 public class ProductController : ControllerBase
 {
     private IProductRepository _repository;
