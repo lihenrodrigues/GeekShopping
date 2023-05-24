@@ -4,14 +4,14 @@ using GeekShopping.IdentityServer.Model.Context;
 using IdentityModel;
 using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
-namespace GeekShopping.IdentityServer.Initializer;
 
+namespace GeekShopping.IdentityServer.Initializer;
 public class DbInitializer : IDbInitializer
 {
     private readonly MySQLContext _context;
     private readonly UserManager<ApplicationUser> _user;
-    private readonly RoleManager<ApplicationUser> _role;
-    public DbInitializer(MySQLContext context, UserManager<ApplicationUser> user, RoleManager<ApplicationUser> role)
+    private readonly RoleManager<IdentityRole> _role;
+    public DbInitializer(MySQLContext context, UserManager<ApplicationUser> user, RoleManager<IdentityRole> role)
     {
         _context = context;
         _user = user;
@@ -22,7 +22,47 @@ public class DbInitializer : IDbInitializer
     {
         if(_role.FindByNameAsync(IdentityConfiguration.Admin).Result != null) return;
 
-        _role.CreateAsync(new IdenityRole(IdentityConfiguration.Admin)).GetAwaiter().GetResult();
-        _role.CreateAsync(new IdenityRole(IdentityConfiguration.Client)).GetAwaiter().GetResult();
+        _role.CreateAsync(new IdentityRole(IdentityConfiguration.Admin)).GetAwaiter().GetResult();
+        _role.CreateAsync(new IdentityRole(IdentityConfiguration.Client)).GetAwaiter().GetResult();
+
+        ApplicationUser admin = new ApplicationUser()
+        {
+            UserName = "lihen-admin",
+            Email = "lihen-admin@dev.com.br",
+            EmailConfirmed = true,
+            PhoneNumber = "55 (27) 12345-6789",
+            FirstName = "Lihen",
+            LasttName = "Admin"
+        };
+
+        _user.CreateAsync(admin, "Lihen123$").GetAwaiter().GetResult();
+        _user.AddToRoleAsync(admin, IdentityConfiguration.Admin).GetAwaiter().GetResult();
+        var adminClaims = _user.AddClaimsAsync(admin, new Claim[]
+        {
+            new Claim(JwtClaimTypes.Name, $"{admin.FirstName} {admin.LasttName}"),
+            new Claim(JwtClaimTypes.GivenName, admin.FirstName),
+            new Claim(JwtClaimTypes.FamilyName, admin.LasttName),
+            new Claim(JwtClaimTypes.Role, IdentityConfiguration.Admin)
+        }).Result;
+
+        ApplicationUser client = new ApplicationUser()
+        {
+            UserName = "lihen-client",
+            Email = "lihen-client@dev.com.br",
+            EmailConfirmed = true,
+            PhoneNumber = "55 (27) 12345-6789",
+            FirstName = "Lihen",
+            LasttName = "Client"
+        };
+
+        _user.CreateAsync(client, "Lihen123$").GetAwaiter().GetResult();
+        _user.AddToRoleAsync(client, IdentityConfiguration.Client).GetAwaiter().GetResult();
+        var clientClaims = _user.AddClaimsAsync(client, new Claim[]
+        {
+            new Claim(JwtClaimTypes.Name, $"{client.FirstName} {client.LasttName}"),
+            new Claim(JwtClaimTypes.GivenName, client.FirstName),
+            new Claim(JwtClaimTypes.FamilyName, client.LasttName),
+            new Claim(JwtClaimTypes.Role, IdentityConfiguration.Client)
+        }).Result;
     }
 }
