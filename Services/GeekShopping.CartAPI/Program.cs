@@ -1,9 +1,9 @@
 using AutoMapper;
 using Microsoft.OpenApi.Models;
+using GeekShopping.CartAPI.Config;
+using GeekShopping.CartAPI.Model.Context;
+using GeekShopping.CartAPI.Repository;
 using Microsoft.EntityFrameworkCore;
-using GeekShopping.ProductAPI.Config;
-using GeekShopping.ProductAPI.Model.Context;
-using GeekShopping.ProductAPI.Repository;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 
@@ -26,12 +26,11 @@ builder.Services.AddAuthorization(options => {
         policy.RequireClaim("scope", "geek_shopping");
     });
 });
-
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => 
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "GeekShopping.ProductAPI", Version = "v1"});
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "GeekShopping.CartAPI", Version = "v1"});
     c.EnableAnnotations();
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
         Description = @"Enter 'Bearer' [space] and your token!",
@@ -65,7 +64,7 @@ IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
 builder.Services.AddSingleton(mapper);
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
 
 var app = builder.Build();
 
