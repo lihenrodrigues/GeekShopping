@@ -3,6 +3,7 @@ using GeekShopping.Web.Services.IServices;
 using GeekShopping.Web.Utils;
 using System.Net.Http.Headers;
 using System.Net.Http;
+using System.Text.Json;
 
 namespace GeekShopping.Web.Services;
 public class CartService : ICartService
@@ -45,7 +46,7 @@ public class CartService : ICartService
 
     public async Task<bool> RemoveFromCart(string token, long cartId)
     {
-         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var response = await _client.DeleteAsync($"{BasePath}/remove-cart/{cartId}");
         if(response.IsSuccessStatusCode) 
             return await response.ReadContentAs<bool>();
@@ -53,10 +54,26 @@ public class CartService : ICartService
             throw new Exception("Something went wrong when calling API");
     }
 
-
-    public async Task<bool> ApplyCoupon(string token, CartViewModel cart, string couponCode)
+    public async Task<bool> ApplyCoupon(string token, CartViewModel model)
     {
-        throw new NotImplementedException();
+        Console.WriteLine(token);
+        Console.WriteLine(JsonSerializer.Serialize(model));
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var response = await _client.PostAsJson($"{BasePath}/apply-coupon", model);
+        if(response.IsSuccessStatusCode) 
+            return await response.ReadContentAs<bool>();
+        else 
+            throw new Exception("Something went wrong when calling API");
+    }
+
+    public async Task<bool> RemoveCoupon(string token, string userId)
+    {
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var response = await _client.DeleteAsync($"{BasePath}/remove-coupon/{userId}");
+        if(response.IsSuccessStatusCode) 
+            return await response.ReadContentAs<bool>();
+        else 
+            throw new Exception("Something went wrong when calling API");
     }
 
     public async Task<CartViewModel> Checkout(string token, CartHeaderViewModel cartHeader)
@@ -69,8 +86,4 @@ public class CartService : ICartService
         throw new NotImplementedException();
     }
 
-    public async Task<bool> RemoveCoupon(string token, string userId)
-    {
-        throw new NotImplementedException();
-    }
 }
