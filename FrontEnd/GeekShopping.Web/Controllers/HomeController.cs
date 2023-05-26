@@ -4,7 +4,6 @@ using GeekShopping.Web.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication;
 using GeekShopping.Web.Services.IServices;
-using System.Text.Json;
 
 namespace GeekShopping.Web.Controllers;
 
@@ -60,9 +59,7 @@ public class HomeController : Controller
 
         List<CartDetailViewModel> cartDetails = new List<CartDetailViewModel>();
         cartDetails.Add(cartDetail);
-
         cart.CartDetails = cartDetails;
-        Console.WriteLine(JsonSerializer.Serialize(cart));
 
         var response = await _cartService.AddItemToCart(token, cart);
         if(response != null)
