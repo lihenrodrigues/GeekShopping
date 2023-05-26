@@ -1,8 +1,9 @@
-namespace GeekShopping.CartAPI.Data.ValueObjects;
+namespace GeekShopping.Web.Models;
 
-public class CartHeaderVO
+public class CartHeaderViewModel
 {
     public long Id { get; set; }
     public string UserId { get; set; }
     public string? CouponCode { get; set; }
+    public double PuchaseAmount { get; set; }
 }

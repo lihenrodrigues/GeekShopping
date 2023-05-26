@@ -7,9 +7,9 @@ using GeekShopping.Web.Models;
 namespace GeekShopping.Web.Services.IServices;
 public interface IProductService
 {
-    Task<IEnumerable<ProductModel>> FindAllProducts(string token);
-    Task<ProductModel> FindProductById(string token, long id);
-    Task<ProductModel> CreateProduct(string token, ProductModel model);
-    Task<ProductModel> UpdateProduct(string token, ProductModel model);
+    Task<IEnumerable<ProductViewModel>> FindAllProducts(string token);
+    Task<ProductViewModel> FindProductById(string token, long id);
+    Task<ProductViewModel> CreateProduct(string token, ProductViewModel model);
+    Task<ProductViewModel> UpdateProduct(string token, ProductViewModel model);
     Task<bool> DeleteProductById(string token, long id);
 }

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace GeekShopping.Web.Models;
-public class ProductModel
+public class ProductViewModel
 {
     public long Id { get; set; }
     public string Name { get; set; } = null!;
