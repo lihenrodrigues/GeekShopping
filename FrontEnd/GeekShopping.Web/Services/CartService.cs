@@ -3,7 +3,6 @@ using GeekShopping.Web.Services.IServices;
 using GeekShopping.Web.Utils;
 using System.Net.Http.Headers;
 using System.Net.Http;
-using System.Text.Json;
 
 namespace GeekShopping.Web.Services;
 public class CartService : ICartService
@@ -56,8 +55,6 @@ public class CartService : ICartService
 
     public async Task<bool> ApplyCoupon(string token, CartViewModel model)
     {
-        Console.WriteLine(token);
-        Console.WriteLine(JsonSerializer.Serialize(model));
         _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         var response = await _client.PostAsJson($"{BasePath}/apply-coupon", model);
         if(response.IsSuccessStatusCode) 
@@ -76,9 +73,14 @@ public class CartService : ICartService
             throw new Exception("Something went wrong when calling API");
     }
 
-    public async Task<CartViewModel> Checkout(string token, CartHeaderViewModel cartHeader)
+    public async Task<CartHeaderViewModel> Checkout(string token, CartHeaderViewModel model)
     {
-        throw new NotImplementedException();
+        _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var response = await _client.PostAsJson($"{BasePath}/checkout", model);
+        if(response.IsSuccessStatusCode) 
+            return await response.ReadContentAs<CartHeaderViewModel>();
+        else 
+            throw new Exception("Something went wrong when calling API");
     }
 
     public async Task<bool> ClearCart(string token, string userId)
