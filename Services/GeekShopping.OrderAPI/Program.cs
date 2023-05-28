@@ -1,11 +1,9 @@
-using AutoMapper;
-using Microsoft.OpenApi.Models;
-using GeekShopping.CartAPI.Config;
-using GeekShopping.CartAPI.Model.Context;
-using GeekShopping.CartAPI.Repository;
+using GeekShopping.OrderAPI.MessageConsumer;
+using GeekShopping.OrderAPI.Model.Context;
+using GeekShopping.OrderAPI.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using GeekShopping.CartAPI.RabbitMQSender;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,7 +28,7 @@ builder.Services.AddAuthorization(options => {
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c => 
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "GeekShopping.CartAPI", Version = "v1"});
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "GeekShopping.OrderAPI", Version = "v1"});
     c.EnableAnnotations();
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
         Description = @"Enter 'Bearer' [space] and your token!",
@@ -60,13 +58,13 @@ builder.Services.AddDbContext<MySQLContext>(options => options.
         new MySqlServerVersion(
             new Version(8, 0, 32))));
 
-IMapper mapper = MappingConfig.RegisterMaps().CreateMapper();
-builder.Services.AddSingleton(mapper);
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+var dbBuildder = new DbContextOptionsBuilder<MySQLContext>();
+dbBuildder.UseMySql(connection, 
+        new MySqlServerVersion(
+            new Version(8, 0, 32)));
 
-builder.Services.AddScoped<ICartRepository, CartRepository>();
-
-builder.Services.AddSingleton<IRabbitMQMessageSender, RabbitMQMessageSender>();
+builder.Services.AddSingleton(new OrderRepository(dbBuildder.Options));
+builder.Services.AddHostedService<RabbitMQCheckoutConsumer>();
 
 var app = builder.Build();
 
