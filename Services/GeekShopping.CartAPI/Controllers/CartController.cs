@@ -76,12 +76,13 @@ public class CartController : ControllerBase
     public async Task<ActionResult<CheckoutHeaderVO>> Checkout(CheckoutHeaderVO vo)
     {
         string token = Request.Headers["Authorization"];
+
         if(vo?.UserId == null) return BadRequest();
         var cart = await _cartRepository.FindCartByUserId(vo.UserId);
         if(cart == null) return NotFound();
         if(!string.IsNullOrEmpty(vo.CouponCode))
         {
-            CouponVO coupon = await _couponRepository.GetCoupon(token, vo.CouponCode);
+            CouponVO coupon = await _couponRepository.GetCoupon(token.Remove(0, 6), vo.CouponCode);
             if(vo.DiscountAmount != coupon.DiscountAmount)
             {
                 return StatusCode(412);
@@ -91,6 +92,8 @@ public class CartController : ControllerBase
         vo.Time = DateTime.Now;
         
         _rabbitMQMessageSender.SendMessage(vo, "checkoutqueue");
+
+        await _cartRepository.ClearCart(vo.UserId);
 
         return Ok(vo);
     }
